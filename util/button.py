@@ -6,7 +6,14 @@ class Button:
         self.button = pygame.Rect(400, 560, 200, 30)
         self.roundness = roundness
         self.colour = colour
+        self.txt = txt
         self.text = font.render(txt, True, txtcolour)
+    
+    def __str__(self):
+        return 'Button saying "%s"' % self.txt
+    
+    def __repr__(self):
+        return str(self)
     
     def update(self):
         """

@@ -15,7 +15,7 @@ class Button:
     def __repr__(self):
         return str(self)
     
-    def update(self):
+    def update(self, x, y):
         """
         draws the button to the screen, and returns whether the user has their mouse over it. So if the mousedown is also there, then they clicked it.
 
@@ -24,6 +24,8 @@ class Button:
         bool
             whether or not the user has their mouse ___***OVER***___ the button, NOT CLICKED.
         """
-        pygame.draw.rect(self.screen, self.colour, self.button, border_radius=self.roundness)
+        btn = self.button.copy()
+        btn.move_ip(x, y)
+        pygame.draw.rect(self.screen, self.colour, btn, border_radius=self.roundness)
         self.screen.blit(self.text, (self.button.centerx - 45, self.button.centery - 10))
         return self.button.collidepoint(pygame.mouse.get_pos())

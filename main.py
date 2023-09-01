@@ -11,6 +11,7 @@ class Main:
         self.btns = [Button(self.WIN, 'Hello!', (100, 255, 100)), Button(self.WIN, 'Gooooooodbye. :(', (100, 100, 255))]
 
     def __call__(self):
+        self.WIN.fill((0, 0, 0))
         updates = [self.btns[i].update(0, i * 100) for i in range(len(self.btns))]
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

@@ -2,6 +2,8 @@
 
 ![C be the channel in which this glyph itself is written, i.e. UNLWS](readme_pics/imageLikeEmbed.png)
 
+# ___***THIS IS STILL UNDER DEVELOPMENT. I JUST STARTED. CHECK BACK IN A WEEK/MONTH.***___ 
+
 ## Features:
  - [ ] editor
  - [ ] renderer (for editor)

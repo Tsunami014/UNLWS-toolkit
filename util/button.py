@@ -8,16 +8,15 @@ pygame.init()
 
 class Button:
     def __init__(self, screen, txt, colour, txtcolour=(255, 255, 255), max_width=100, font=pygame.font.Font(None, 24), roundness=8):
-        self.screen = screen
         self.roundness = roundness
         self.colour = colour
         self.max_width = max_width
         self.txt = txt
         self.font = font
         self.txtcolour = txtcolour
-        c = screen.copy()
+        self.screen = pygame.Surface((0, 0))
         self.update(0, 0)
-        screen = c
+        self.screen = screen
     
     def __str__(self):
         return 'Button saying "%s"' % self.txt
@@ -36,15 +35,14 @@ class Button:
         """
         lines = [self.font.render(line, True, self.txtcolour) for line in renderTextCenteredAt(self.txt, self.font, self.max_width)]
 
-        self.nsurface = pygame.Surface((max([i.get_width() for i in lines])+20, sum([i.get_height() for i in lines])+(len(lines)+1)*10))
-        col = (self.txtcolour[0], self.txtcolour[1], (self.txtcolour[2]+1 if self.txtcolour[2] < 255 else self.txtcolour[2]-1))
-        self.nsurface.fill(col)
-        top = 10
+        self.nsurface = pygame.Surface((max([i.get_width() for i in lines]), sum([i.get_height() for i in lines])+(len(lines)-1)*10))
+        self.nsurface.fill(self.colour)
+        top = 0
         for i in lines:
-            self.nsurface.blit(i, (10, top))
+            self.nsurface.blit(i, (0, top))
             top += i.get_height()+10
 
-        btn = pygame.Rect(x, y, *self.nsurface.get_size())
+        btn = pygame.Rect(x, y, self.nsurface.get_width() + 20, self.nsurface.get_height() + 20)
         pygame.draw.rect(self.screen, self.colour, btn, border_radius=self.roundness)
-        self.screen.blit(self.nsurface, (x, y))
+        self.screen.blit(self.nsurface, (x+10, y+10))
         return btn.collidepoint(pygame.mouse.get_pos())

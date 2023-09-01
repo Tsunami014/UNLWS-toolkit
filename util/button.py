@@ -4,7 +4,7 @@ pygame.init()
 class Button:
     def __init__(self, screen, txt, colour, txtcolour=(255, 255, 255), font=pygame.font.Font(None, 24), roundness=8):
         self.screen = screen
-        self.button = pygame.Rect(400, 560, 200, 30)
+        self.button = pygame.Rect(0, 0, 200, 30)
         self.roundness = roundness
         self.colour = colour
         self.txt = txt
@@ -28,5 +28,5 @@ class Button:
         btn = self.button.copy()
         btn.move_ip(x, y)
         pygame.draw.rect(self.screen, self.colour, btn, border_radius=self.roundness)
-        self.screen.blit(self.text, (self.button.centerx - 45, self.button.centery - 10))
-        return self.button.collidepoint(pygame.mouse.get_pos())
+        self.screen.blit(self.text, (btn.left+10, btn.top + 10))
+        return btn.collidepoint(pygame.mouse.get_pos())

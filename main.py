@@ -17,7 +17,7 @@ class Main:
                 quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == pygame.BUTTON_LEFT:
-                    for i in [j for j in updates if j]:
+                    for i in [self.btns[j] for j in range(len(self.btns)) if updates[j]]:
                         print(i)
         pygame.display.update()
         self.clock.tick(60)

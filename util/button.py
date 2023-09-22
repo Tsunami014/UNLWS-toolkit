@@ -6,6 +6,15 @@ except ImportError:
 import pygame
 pygame.init()
 
+class Gap:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+        self.nsurface = pygame.Surface((width, height))
+    
+    def update(self, x, y):
+        return False
+
 class Button:
     def __init__(self, screen, txt, colour, txtcolour=(255, 255, 255), max_width=100, font=pygame.font.Font(None, 24), roundness=8):
         self.roundness = roundness

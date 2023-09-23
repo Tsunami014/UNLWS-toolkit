@@ -10,10 +10,15 @@ def get_glyph(name):
         except KeyError:
             raise KeyError('No glyph named "%s" exists in either `glyphs.svg` or `glyphs.json`.' % name)
 
-def parse(coords):
+def parse(coords): #TODO: make all of them the same size (roughly) WITHOUT USING pygame.transform.scale because we want to transform the list BEFORE turning it into a surface
     origin = (min([int(i[0]) for i in coords]), min([int(i[1]) for i in coords]))
-    s = pygame.Surface((math.floor(max([int(i[0])-origin[0] for i in coords])), math.floor(max([int(i[1])-origin[1] for i in coords]))))
-    pygame.draw.polygon(s, (255, 255, 255), [[int(i[0])-origin[0], int(i[1])-origin[1]] for i in coords], 10)
+    s = pygame.Surface((math.floor(max([int(i[0])-origin[0] for i in coords]))+10, math.floor(max([int(i[1])-origin[1] for i in coords]))+10))
+    draw = [[int(i[0])-origin[0], int(i[1])-origin[1]] for i in coords]
+    ndraw = draw.copy()
+    ndraw.reverse()
+    draw += ndraw
+    pygame.draw.polygon(s, (255, 255, 255), [[i[0]+5, i[1]+5] for i in draw], 5)
+    s.set_colorkey((0, 0, 0))
     return s
 
 def get_json_glyph(name):

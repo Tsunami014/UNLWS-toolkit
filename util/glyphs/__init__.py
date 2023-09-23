@@ -1,1 +1,1 @@
-from get_glyphs import *
+from util.glyphs.get_glyphs import *

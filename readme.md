@@ -6,7 +6,7 @@
 
 ## Features:
  - [ ] editor
- - [ ] renderer (for editor)
+ - [ ] renderer (for editor) (also avaliable to separately render glyphs)
  - [ ] (I know you're all probably going to go "that can't be possible!" but) a UNLWS translator (Google translate for 2D languages XD)
 
 ## What I'm unsure about:

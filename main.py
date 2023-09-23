@@ -1,5 +1,5 @@
 import pygame
-from util import DIALOG, Button, Gap
+from util import DIALOG, Button, Gap, Editor
 #from editor import Editor # TODO: make the editor and implement it
 
 pygame.init()
@@ -14,10 +14,10 @@ class Main:
                      [
                          Button(self.WIN, 'Editor', (255, 0, 0), (255, 255, 255), 100, roundness=10), 
                          Gap(0, 2),
-                         Button(self.WIN, 'Sample button', (0, 255, 0), (255, 255, 255), 100, roundness=10)
+                         Button(self.WIN, 'Render', (0, 255, 0), (255, 255, 255), 100, roundness=10)
                      ], 10, 10)
-        #if choose.txt == 'Editor':
-        #    Editor(self.WIN, self.clock)()
+        if choose.txt == 'Editor':
+            Editor(self.WIN, self.clock)()
         
 
 if __name__ == '__main__':

@@ -1,17 +1,6 @@
 import pygame
-try:
-    from util.button import Button
-    from util.glyphs import get_glyph
-except:
-    from button import Button
-    from glyphs import get_glyph
-
-class Glyph: # for each glyph, -5 to x and y. That's how it is rendered.
-    def __init__(self, name): #TODO: drag glyphs
-        self.sur = get_glyph(name)
-
-    def __call__(self, screen, x, y):
-        screen.blit(self.sur, (x-5, y-5))
+from util.button import Button
+from util.glyphs import getAllGlyphs
 
 class Editor:
     def __init__(self, screen, clock):
@@ -23,7 +12,8 @@ class Editor:
         sidebarScroll = 0
         mainScroll = 0
         btns = [Button(self.screen, 'hi', (255, 0, 125))]
-        items = [Glyph('thou'), Glyph('You')]
+        alls = getAllGlyphs()
+        items = [alls[i] for i in alls]
         while run:
             self.screen.fill((0, 0, 0))
             sidebar_w = 20/100 * self.screen.get_width()
@@ -47,6 +37,6 @@ class Editor:
                         for i in [btns[j] for j in range(len(btns)) if updates[j]]:
                             print(i)
             for it in range(len(items)):
-                items[it](self.screen, 20, it*100+sidebarScroll)
+                items[it].draw(self.screen, (10, 255, 125), (20, it*100+sidebarScroll), 100)
             pygame.display.update()
             self.clock.tick(60)

@@ -1,7 +1,4 @@
-try:
-    from util.text import *
-except ImportError:
-    from text import *
+from util.text import *
 
 import pygame
 pygame.init()

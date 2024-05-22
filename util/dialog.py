@@ -1,7 +1,4 @@
-try:
-    from util.button import *
-except ImportError:
-    from button import *
+from util.button import *
 
 def DIALOG(WIN, CLOCK, buttons, x, y):
     run = True

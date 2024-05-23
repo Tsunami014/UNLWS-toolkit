@@ -5,10 +5,15 @@ from svg.path import parse_path
 DOC = minidom.parse('util/glyphs/glyphs.svg').documentElement.childNodes
 DAT = json.load(open('util/glyphs/glyph_data.json'))
 
+_UIDCOUNT = 0
+
 class Glyph:
     def __init__(self, name: str, points: list[tuple[int,int]] = None) -> None:
+        global _UIDCOUNT
         self.name = name
         self.data = DAT[name]
+        _UIDCOUNT += 1
+        self.uid = _UIDCOUNT
         if points is not None:
             self.points = points
         else:
@@ -32,6 +37,13 @@ class Glyph:
             point = self.points[i]
             bps.append((int(point[0] * size + pos[0]), int(point[1] * size + pos[1])))
         return bps
+    
+    def __hash__(self) -> int:
+        return hash([self.uid, self.name, self.points])
+    
+    def __str__(self) -> str:
+        return f'<Glyph object of name {self.name}>'
+    def __repr__(self) -> str: return str(self)
 
     def copy(self):
         return Glyph(self.name, self.points)

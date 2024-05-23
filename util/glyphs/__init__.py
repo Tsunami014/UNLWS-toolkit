@@ -12,10 +12,7 @@ class Glyph:
                 raise KeyError('No glyph named "%s" exists in `glyphs.svg`!' % name)
     
     def draw(self, sur, colour, pos, size, line_thickness=8):
-        prev = self.points[0]
-        for i in self.points[1:]:
-            pygame.draw.line(sur, colour, (prev[0] * size + pos[0], prev[1] * size + pos[1]), (i[0] * size + pos[0], i[1] * size + pos[1]), line_thickness)
-            prev = i
+        pygame.draw.lines(sur, colour, False, [(i[0] * size + pos[0], i[1] * size + pos[1]) for i in self.points], line_thickness)
 
 def getAllGlyphNames() -> list[str]:
     doc = minidom.parse('util/glyphs/glyphs.svg')

@@ -17,13 +17,24 @@ class Glyph:
             except KeyError:
                 raise KeyError('No glyph named "%s" exists in `glyphs.svg`!' % name)
     
-    def draw(self, sur, colour, pos, size, line_thickness=8, dot_thickness=12, dotColour=None):
+    def draw(self, sur, colour, pos, size, line_thickness=8, dot_thickness=12, dotColour=None, show_bps=True):
         if dotColour is None:
             dotColour = colour
         pygame.draw.lines(sur, colour, False, [(i[0] * size + pos[0], i[1] * size + pos[1]) for i in self.points], line_thickness)
+        if show_bps:
+            for i in self.data['BPs']:
+                point = self.points[i]
+                pygame.draw.circle(sur, dotColour, (int(point[0] * size + pos[0]), int(point[1] * size + pos[1])), dot_thickness)
+    
+    def getBps(self, pos, size):
+        bps = []
         for i in self.data['BPs']:
             point = self.points[i]
-            pygame.draw.circle(sur, dotColour, (int(point[0] * size + pos[0]), int(point[1] * size + pos[1])), dot_thickness)
+            bps.append((int(point[0] * size + pos[0]), int(point[1] * size + pos[1])))
+        return bps
+
+    def copy(self):
+        return Glyph(self.name, self.points)
 
 def getAllGlyphNames() -> list[str]:
     return [i.attributes.get('inkscape:label').value for i in DOC if i.nodeName == 'path']

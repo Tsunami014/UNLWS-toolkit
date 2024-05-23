@@ -58,6 +58,7 @@ class Editor:
                     bps = items[it].getBps((0, 0), GLYPHSZE)
                     onscreens.append([items[it].copy(), (mpos[0] - bps[collidingBp][0], mpos[1] - bps[collidingBp][1])])
                     holding = (len(onscreens)-1, collidingBp)
+            ClosestCollBp = None
             for it in onscreens:
                 r = pygame.rect.Rect(*it[1], GLYPHSZE, GLYPHSZE)
                 mpos = pygame.mouse.get_pos()
@@ -73,12 +74,16 @@ class Editor:
                             break
                 if collidingBp is not None and pygame.mouse.get_pressed()[0] and holding is None:
                     holding = (onscreens.index(it), collidingBp)
+                elif collidingBp is not None:
+                    ClosestCollBp = bps[collidingBp]
             if holding is not None:
                 bps = onscreens[holding[0]][0].getBps((0, 0), GLYPHSZE)
                 mpos = pygame.mouse.get_pos()
                 pygame.draw.circle(self.screen, (10, 125, 255), onscreens[holding[0]][0].getBps(onscreens[holding[0]][1], GLYPHSZE)[holding[1]], 15)
                 onscreens[holding[0]][1] = (mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
                 if not pygame.mouse.get_pressed()[0]:
+                    if ClosestCollBp is not None: # From the item check for all ones in the editor area
+                        onscreens[holding[0]][1] = (ClosestCollBp[0] - bps[holding[1]][0], ClosestCollBp[1] - bps[holding[1]][1])
                     holding = None
             pygame.display.update()
             self.clock.tick(60)

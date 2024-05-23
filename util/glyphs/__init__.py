@@ -1,10 +1,14 @@
-import pygame
+import pygame, json
 from xml.dom import minidom
 from svg.path import parse_path
+
+DOC = minidom.parse('util/glyphs/glyphs.svg').documentElement.childNodes
+DAT = json.load(open('util/glyphs/glyph_data.json'))
 
 class Glyph:
     def __init__(self, name: str, points: list[tuple[int,int]] = None) -> None:
         self.name = name
+        self.data = DAT[name]
         if points is not None:
             self.points = points
         else:
@@ -13,22 +17,24 @@ class Glyph:
             except KeyError:
                 raise KeyError('No glyph named "%s" exists in `glyphs.svg`!' % name)
     
-    def draw(self, sur, colour, pos, size, line_thickness=8):
+    def draw(self, sur, colour, pos, size, line_thickness=8, dot_thickness=12, dotColour=None):
+        if dotColour is None:
+            dotColour = colour
         pygame.draw.lines(sur, colour, False, [(i[0] * size + pos[0], i[1] * size + pos[1]) for i in self.points], line_thickness)
+        for i in self.data['BPs']:
+            point = self.points[i]
+            pygame.draw.circle(sur, dotColour, (int(point[0] * size + pos[0]), int(point[1] * size + pos[1])), dot_thickness)
 
 def getAllGlyphNames() -> list[str]:
-    doc = minidom.parse('util/glyphs/glyphs.svg')
-    return [i.attributes.get('inkscape:label').value for i in doc.documentElement.childNodes if i.nodeName == 'path']
+    return [i.attributes.get('inkscape:label').value for i in DOC if i.nodeName == 'path']
 
 def getAllGlyphs() -> dict[str:Glyph]:
-    doc = minidom.parse('util/glyphs/glyphs.svg')
     return {i.attributes.get('inkscape:label').value: Glyph(i.attributes.get('inkscape:label').value, _correctGlyph(_parseGlyph(i.attributes.get('d').value)))
-            for i in doc.documentElement.childNodes if i.nodeName == 'path'}
+            for i in DOC if i.nodeName == 'path'}
 
 
 def _getGlyph(name: str) -> list[tuple[int,int]]:
-    doc = minidom.parse('util/glyphs/glyphs.svg')
-    allGlyphs = {i.attributes.get('inkscape:label').value: i.attributes.get('d').value for i in doc.documentElement.childNodes if i.nodeName == 'path'}
+    allGlyphs = {i.attributes.get('inkscape:label').value: i.attributes.get('d').value for i in DOC if i.nodeName == 'path'}
     return _correctGlyph(_parseGlyph(allGlyphs[name].attributes.get('d').value))
 
 def _parseGlyph(ptsstr: str) -> list[tuple[int,int]]:

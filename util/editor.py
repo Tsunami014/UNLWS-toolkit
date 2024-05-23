@@ -37,6 +37,6 @@ class Editor:
                         for i in [btns[j] for j in range(len(btns)) if updates[j]]:
                             print(i)
             for it in range(len(items)):
-                items[it].draw(self.screen, (10, 255, 125), (20, it*120+sidebarScroll+20), 100)
+                items[it].draw(self.screen, (10, 255, 125), (20, it*120+sidebarScroll+20), 100, dotColour=(10, 125, 255))
             pygame.display.update()
             self.clock.tick(60)

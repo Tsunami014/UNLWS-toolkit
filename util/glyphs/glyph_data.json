@@ -1,0 +1,10 @@
+{
+    "Me": {
+        "description": "The person who is writing this.",
+        "BPs": [0]
+    },
+    "You": {
+        "description": "The person who is reading this.",
+        "BPs": [0]
+    }
+}

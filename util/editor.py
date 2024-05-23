@@ -61,7 +61,7 @@ class Editor:
             for it in onscreens:
                 r = pygame.rect.Rect(*it[1], GLYPHSZE, GLYPHSZE)
                 mpos = pygame.mouse.get_pos()
-                collides = r.collidepoint(mpos)
+                collides = r.collidepoint(mpos) and not (holding is not None and holding[0] == onscreens.index(it))
                 it[0].draw(self.screen, (10, 255, 125), (it[1][0] + 6, it[1][1] + 6), GLYPHSZE-12, dotColour=(90, 255, 200), show_bps=collides)
                 collidingBp = None
                 if collides:
@@ -76,8 +76,8 @@ class Editor:
             if holding is not None:
                 bps = onscreens[holding[0]][0].getBps((0, 0), GLYPHSZE)
                 mpos = pygame.mouse.get_pos()
-                onscreens[holding[0]][1] = (mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
                 pygame.draw.circle(self.screen, (10, 125, 255), onscreens[holding[0]][0].getBps(onscreens[holding[0]][1], GLYPHSZE)[holding[1]], 15)
+                onscreens[holding[0]][1] = (mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
                 if not pygame.mouse.get_pressed()[0]:
                     holding = None
             pygame.display.update()

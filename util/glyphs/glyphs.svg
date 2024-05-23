@@ -23,13 +23,13 @@
    inkscape:pagecheckerboard="0"
    inkscape:deskcolor="#d1d1d1"
    inkscape:zoom="1.030303"
-   inkscape:cx="305.7353"
-   inkscape:cy="395.02942"
-   inkscape:window-width="1920"
-   inkscape:window-height="1016"
-   inkscape:window-x="0"
-   inkscape:window-y="0"
-   inkscape:window-maximized="1"
+   inkscape:cx="246.52942"
+   inkscape:cy="401.33825"
+   inkscape:window-width="1452"
+   inkscape:window-height="991"
+   inkscape:window-x="26"
+   inkscape:window-y="23"
+   inkscape:window-maximized="0"
    inkscape:current-layer="svg2" />
 <style
    type="text/css"
@@ -45,6 +45,7 @@
    sodipodi:nodetypes="cccc" />
 <path
    style="fill:none;stroke:#000000;stroke-width:7.55906;stroke-linecap:round;stroke-linejoin:round"
-   d="M 331.32698,350.29136 V 204.86994 l -51.77861,71.23966 h 92.43715"
+   d="M 331.32698,350.29136 V 204.86994 l -51.77861,72.64625 87.3226,-1.40659"
    id="path3"
-   inkscape:label="Me" /></svg>
+   inkscape:label="Me"
+   sodipodi:nodetypes="cccc" /></svg>

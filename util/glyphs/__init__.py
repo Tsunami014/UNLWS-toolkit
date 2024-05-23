@@ -71,8 +71,6 @@ def _parseGlyph(ptsstr: str) -> list[tuple[int,int]]:
                     )
                 i = i.split(',')
                 points.append((points[-1][0] + (float(i[0]) * typ), points[-1][1] + (float(i[1]) * typ)))
-            cmd = None
-            typ = None
     return points
             
 

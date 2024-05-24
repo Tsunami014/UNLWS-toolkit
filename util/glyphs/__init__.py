@@ -23,7 +23,40 @@ def _rotate(point, angle): # Thanks, https://stackoverflow.com/questions/3437248
     qy = sin * px + cos * py
     return qx, qy
 
-class Glyph:
+class RelLine: # Works with absolute coords
+    def __init__(self, points: list[int,int]):
+        global _UIDCOUNT
+        self.points = points
+        _UIDCOUNT += 1
+        self.uid = _UIDCOUNT
+    
+    def draw(self, sur, colour, line_thickness=8, highlight_thickness=4, dot_thickness=12, dotColour=None, show_bps=True, highlight=None):
+        if dotColour is None:
+            dotColour = colour
+        if highlight is not None:
+            pygame.draw.lines(sur, highlight, False, self.points, line_thickness + 2*highlight_thickness)
+            for i in self.points:
+                pygame.draw.circle(sur, highlight, i, line_thickness/2 + highlight_thickness)
+        pygame.draw.lines(sur, colour, False, self.points, line_thickness)
+        for i in self.points:
+                pygame.draw.circle(sur, colour, i, line_thickness/2)
+        if show_bps:
+            for i in self.points:
+                pygame.draw.circle(sur, dotColour, i, dot_thickness)
+    
+    def getBps(self):
+        return self.points
+    
+    def __hash__(self) -> int:
+        return hash([self.uid, self.points])
+    def __str__(self) -> str:
+        return f'<Rel Line object with points ({",".join(self.points)})>'
+    def __repr__(self) -> str: return str(self)
+    
+    def copy(self):
+        return RelLine(self.points)
+
+class Glyph: # Works with relative coords
     def __init__(self, name: str, points: list[tuple[int,int]] = None) -> None:
         global _UIDCOUNT
         self.name = name
@@ -87,7 +120,7 @@ def getAllGlyphs() -> dict[str:Glyph]:
 
 def _getGlyph(name: str) -> list[tuple[int,int]]:
     allGlyphs = {i.attributes.get('inkscape:label').value: i.attributes.get('d').value for i in DOC if i.nodeName == 'path'}
-    return _correctGlyph(_parseGlyph(allGlyphs[name].attributes.get('d').value))
+    return _parseGlyph(allGlyphs[name].attributes.get('d').value)
 
 def _parseGlyph(ptsstr: str) -> list[tuple[int,int]]:
     path = parse_path(ptsstr)

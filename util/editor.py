@@ -24,12 +24,26 @@ class Editor:
             pygame.draw.rect(self.screen, (120, 120, 120), (0, 0, sidebar_w, self.screen.get_height()))
 
             updates = [btns[i].update(200, 0 + sum([btns[j].nsurface.get_height() + 20 for j in range(i)])) for i in range(len(btns))]
+            shift = pygame.key.get_mods() & pygame.KMOD_SHIFT
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         run = False
+                    elif (not shift) and holding is not None:
+                        if event.key == pygame.K_RIGHT:
+                            g = onscreens[holding[0]][0]
+                            g.rotate(g.rotation + 45)
+                            bps = onscreens[holding[0]][0].getBps((0, 0), GLYPHSZE)
+                            mpos = pygame.mouse.get_pos()
+                            onscreens[holding[0]][1] = (mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
+                        elif event.key == pygame.K_LEFT:
+                            g = onscreens[holding[0]][0]
+                            g.rotate(g.rotation - 45)
+                            bps = onscreens[holding[0]][0].getBps((0, 0), GLYPHSZE)
+                            mpos = pygame.mouse.get_pos()
+                            onscreens[holding[0]][1] = (mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
                 elif event.type == pygame.MOUSEWHEEL:
                     pos = pygame.mouse.get_pos()
                     if pos[0] < sidebar_w:
@@ -40,6 +54,13 @@ class Editor:
                     if event.button == pygame.BUTTON_LEFT:
                         for i in [btns[j] for j in range(len(btns)) if updates[j]]:
                             print(i)
+            ks = pygame.key.get_pressed()
+            if (holding is not None) and shift and (ks[pygame.K_RIGHT] or ks[pygame.K_LEFT]):
+                g = onscreens[holding[0]][0]
+                g.rotate(g.rotation + 2 * (1 if ks[pygame.K_RIGHT] else -1))
+                bps = onscreens[holding[0]][0].getBps((0, 0), GLYPHSZE)
+                mpos = pygame.mouse.get_pos()
+                onscreens[holding[0]][1] = (mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
             for it in range(len(items)):
                 pos = (20, it*120+sidebarScroll+20)
                 r = pygame.rect.Rect(*pos, GLYPHSZE, GLYPHSZE)

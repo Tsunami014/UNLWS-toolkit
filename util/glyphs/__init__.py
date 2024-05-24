@@ -1,4 +1,4 @@
-import pygame, json
+import pygame, json, math
 from xml.dom import minidom
 from svg.path import parse_path
 
@@ -7,6 +7,22 @@ DAT = json.load(open('util/glyphs/glyph_data.json'))
 
 _UIDCOUNT = 0
 
+def _rotate(point, angle): # Thanks, https://stackoverflow.com/questions/34372480/rotate-point-about-another-point-in-degrees-python !
+    """
+    Rotate a point clockwise by a given angle around (0, 0).
+
+    The angle should be given in degrees.
+    """
+    angle = math.radians(-angle)
+    px, py = point
+    
+    cos = math.cos(angle)
+    sin = math.sin(angle)
+
+    qx = cos * px - sin * py
+    qy = sin * px + cos * py
+    return qx, qy
+
 class Glyph:
     def __init__(self, name: str, points: list[tuple[int,int]] = None) -> None:
         global _UIDCOUNT
@@ -14,13 +30,19 @@ class Glyph:
         self.data = DAT[name]
         _UIDCOUNT += 1
         self.uid = _UIDCOUNT
+        self.rotation = 0
         if points is not None:
-            self.points = points
+            self.basepoints = points
         else:
             try:
-                self.points = _getGlyph(name)
+                self.basepoints = _getGlyph(name)
             except KeyError:
                 raise KeyError('No glyph named "%s" exists in `glyphs.svg`!' % name)
+        self.points = self.basepoints
+    
+    def rotate(self, newRot):
+        self.rotation = newRot
+        self.points = _correctGlyph([_rotate(i, newRot) for i in self.basepoints])
     
     def draw(self, sur, colour, pos, size, line_thickness=8, dot_thickness=12, dotColour=None, show_bps=True):
         if dotColour is None:

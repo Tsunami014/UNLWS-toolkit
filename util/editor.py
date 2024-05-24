@@ -68,7 +68,7 @@ class Editor:
                 r = pygame.rect.Rect(*it[1], GLYPHSZE, GLYPHSZE)
                 mpos = pygame.mouse.get_pos()
                 collides = r.collidepoint(mpos)
-                it[0].draw(self.screen, (10, 255, 125), (it[1][0] + 6, it[1][1] + 6), GLYPHSZE-12, dotColour=(90, 255, 200), show_bps=collides)
+                it[0].draw(self.screen, (10, 255, 125), (it[1][0] + 6, it[1][1] + 6), GLYPHSZE-12, dotColour=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides and holding is None else None))
                 collidingBp = None
                 if collides:
                     bps = it[0].getBps((it[1][0] + 6, it[1][1] + 6), GLYPHSZE-12)
@@ -91,7 +91,7 @@ class Editor:
                 r = pygame.rect.Rect(*pos, GLYPHSZE, GLYPHSZE)
                 mpos = pygame.mouse.get_pos()
                 collides = r.collidepoint(mpos) and holding is None
-                items[it].draw(self.screen, (10, 255, 125), (pos[0] + 6, pos[1] + 6), GLYPHSZE-12, dotColour=(90, 255, 200), show_bps=collides)
+                items[it].draw(self.screen, (10, 255, 125), (pos[0] + 6, pos[1] + 6), GLYPHSZE-12, dotColour=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
                 collidingBp = None
                 if collides:
                     bps = items[it].getBps((pos[0] + 6, pos[1] + 6), GLYPHSZE-12)
@@ -112,7 +112,7 @@ class Editor:
                 bps = it[0].getBps((0, 0), GLYPHSZE)
                 mpos = pygame.mouse.get_pos()
                 it[1] = (mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
-                it[0].draw(self.screen, (10, 255, 125), (it[1][0] + 6, it[1][1] + 6), GLYPHSZE-12, show_bps=False)
+                it[0].draw(self.screen, (10, 255, 125), (it[1][0] + 6, it[1][1] + 6), GLYPHSZE-12, show_bps=False, highlight=(255,228,181))
                 pygame.draw.circle(self.screen, (10, 125, 255), it[0].getBps(it[1], GLYPHSZE)[holding[1]], 15)
                 if not pygame.mouse.get_pressed()[0]:
                     if in_bar:

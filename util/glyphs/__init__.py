@@ -44,10 +44,13 @@ class Glyph:
         self.rotation = newRot
         self.points = _correctGlyph([_rotate(i, newRot) for i in self.basepoints])
     
-    def draw(self, sur, colour, pos, size, line_thickness=8, dot_thickness=12, dotColour=None, show_bps=True):
+    def draw(self, sur, colour, pos, size, line_thickness=8, highlight_thickness=4, dot_thickness=12, dotColour=None, show_bps=True, highlight=None):
         if dotColour is None:
             dotColour = colour
-        pygame.draw.lines(sur, colour, False, [(i[0] * size + pos[0], i[1] * size + pos[1]) for i in self.points], line_thickness)
+        points = [(i[0] * size + pos[0], i[1] * size + pos[1]) for i in self.points]
+        if highlight is not None:
+            pygame.draw.lines(sur, highlight, False, points, line_thickness + 2*highlight_thickness)
+        pygame.draw.lines(sur, colour, False, points, line_thickness)
         if show_bps:
             for i in self.data['BPs']:
                 point = self.points[i]

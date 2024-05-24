@@ -50,7 +50,11 @@ class Glyph:
         points = [(i[0] * size + pos[0], i[1] * size + pos[1]) for i in self.points]
         if highlight is not None:
             pygame.draw.lines(sur, highlight, False, points, line_thickness + 2*highlight_thickness)
+            for i in self.points:
+                pygame.draw.circle(sur, highlight, (i[0] * size + pos[0], i[1] * size + pos[1]), line_thickness/2 + highlight_thickness)
         pygame.draw.lines(sur, colour, False, points, line_thickness)
+        for i in self.points:
+                pygame.draw.circle(sur, colour, (i[0] * size + pos[0], i[1] * size + pos[1]), line_thickness/2)
         if show_bps:
             for i in self.data['BPs']:
                 point = self.points[i]

@@ -10,5 +10,13 @@
     "Eat": {
         "description": "X eats Y",
         "BPs": [0, -1]
+    },
+    "Fish": {
+        "description": "A fish",
+        "BPs": [0]
+    },
+    "Large": {
+        "description": "X is large",
+        "BPs": [0]
     }
 }

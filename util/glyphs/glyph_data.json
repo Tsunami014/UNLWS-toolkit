@@ -6,5 +6,9 @@
     "You": {
         "description": "The person who is reading this.",
         "BPs": [0]
+    },
+    "Eat": {
+        "description": "X eats Y",
+        "BPs": [0, -1]
     }
 }

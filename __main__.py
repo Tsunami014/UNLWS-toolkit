@@ -22,5 +22,6 @@ class Main:
 
 if __name__ == '__main__':
     m = Main()
-    while True:
-        m()
+    Editor(m.WIN, m.clock)()
+    # while True:
+    #     m()

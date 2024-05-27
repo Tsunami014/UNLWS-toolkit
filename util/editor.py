@@ -2,7 +2,8 @@ import pygame, math
 from util.button import Button
 from util.glyphs import RelLine, getAllGlyphs
 
-GLYPHSZE = 100
+SPACING = 24
+GLYPHSZE = 100 + SPACING
 
 class Editor:
     def __init__(self, screen, clock):
@@ -69,13 +70,13 @@ class Editor:
             for it in onscreens:
                 if holding is not None and holding[0] == onscreens.index(it):
                     continue
-                r = pygame.rect.Rect(*it[1], GLYPHSZE, GLYPHSZE)
+                r = it[0].getRect((it[1][0] + SPACING/2, it[1][1] + SPACING/2), GLYPHSZE-SPACING, SPACING)
                 mpos = pygame.mouse.get_pos()
                 collides = r.collidepoint(mpos)
-                it[0].draw(self.screen, (10, 255, 125), (it[1][0] + 6, it[1][1] + 6), GLYPHSZE-12, dotColour=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
+                it[0].draw(self.screen, (10, 255, 125), (it[1][0] + SPACING/2, it[1][1] + SPACING/2), GLYPHSZE-SPACING, dotColour=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
                 collidingBp = None
                 if collides:
-                    bps = it[0].getBps((it[1][0] + 6, it[1][1] + 6), GLYPHSZE-12)
+                    bps = it[0].getBps((it[1][0] + SPACING/2, it[1][1] + SPACING/2), GLYPHSZE-SPACING)
                     for b in range(len(bps)):
                         if abs(mpos[0] - bps[b][0]) + abs(mpos[1] - bps[b][1]) < 12:
                             pygame.draw.circle(self.screen, (10, 125, 255), bps[b], 15)
@@ -98,7 +99,7 @@ class Editor:
                     if lps[0] == lps[1]:
                         collides = abs(mpos[0] - lps[0][0]) + abs(mpos[1] - lps[0][1]) < 8
                     else:
-                        nom = abs((lps[1][0]-lps[0][0])*(lps[0][1]-mpos[1])-(lps[0][0]-mpos[0])*(lps[1][1]-lps[0][1]))
+                        nom = abs((lps[1][0]-lps[0][0])*(lps[0][1]-mpos[1])-(lps[0][0]-mpos[0])*(lps[1][1]-lps[0][1])) # Thanks to https://stackoverflow.com/questions/66424638/find-point-distance-from-line-python
                         denom = math.sqrt((lps[1][0]-lps[0][0])**2+(lps[1][1]-lps[0][1])**2)
                         collides = nom/denom < 8
                     li.draw(self.screen, (10, 255, 125), dotColour=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
@@ -121,13 +122,13 @@ class Editor:
             
             for it in range(len(items)):
                 pos = (20, it*120+sidebarScroll+20)
-                r = pygame.rect.Rect(*pos, GLYPHSZE, GLYPHSZE)
+                r = items[it].getRect((pos[0] + SPACING/2, pos[1] + SPACING/2), GLYPHSZE-SPACING, SPACING)
                 mpos = pygame.mouse.get_pos()
                 collides = r.collidepoint(mpos) and holding is None
-                items[it].draw(self.screen, (10, 255, 125), (pos[0] + 6, pos[1] + 6), GLYPHSZE-12, dotColour=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
+                items[it].draw(self.screen, (10, 255, 125), (pos[0] + SPACING/2, pos[1] + SPACING/2), GLYPHSZE-SPACING, dotColour=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
                 collidingBp = None
                 if collides:
-                    bps = items[it].getBps((pos[0] + 6, pos[1] + 6), GLYPHSZE-12)
+                    bps = items[it].getBps((pos[0] + SPACING/2, pos[1] + SPACING/2), GLYPHSZE-SPACING)
                     for b in range(len(bps)):
                         if abs(mpos[0] - bps[b][0]) + abs(mpos[1] - bps[b][1]) < 12:
                             pygame.draw.circle(self.screen, (10, 125, 255), bps[b], 15)
@@ -151,11 +152,11 @@ class Editor:
                     if in_bar:
                         pygame.draw.rect(self.screen, (255, 50, 90), (0, 0, sidebar_w + 1, self.screen.get_height()))
                     it = onscreens[holding[0]]
-                    bps = it[0].getBps((0, 0), GLYPHSZE)
+                    bps = it[0].getBps((SPACING/2, SPACING/2), GLYPHSZE-SPACING)
                     mpos = pygame.mouse.get_pos()
                     it[1] = (mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
-                    it[0].draw(self.screen, (10, 255, 125), (it[1][0] + 6, it[1][1] + 6), GLYPHSZE-12, show_bps=False, highlight=(255,228,181))
-                    pygame.draw.circle(self.screen, (10, 125, 255), it[0].getBps(it[1], GLYPHSZE)[holding[1]], 15)
+                    it[0].draw(self.screen, (10, 255, 125), (it[1][0] + SPACING/2, it[1][1] + SPACING/2), GLYPHSZE-SPACING, show_bps=False, highlight=(255,228,181))
+                    pygame.draw.circle(self.screen, (10, 255, 125), (it[1][0] + bps[holding[1]][0], it[1][1] + bps[holding[1]][1]), 15)
                     if not pygame.mouse.get_pressed()[0]:
                         if in_bar:
                             onscreens.pop(holding[0])

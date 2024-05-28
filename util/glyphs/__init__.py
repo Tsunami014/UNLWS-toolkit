@@ -64,6 +64,7 @@ class Glyph: # Works with relative coords
         _UIDCOUNT += 1
         self.uid = _UIDCOUNT
         self.rotation = 0
+        self.connections = {}
         if points is not None:
             self.points = points
         else:
@@ -106,15 +107,19 @@ class Glyph: # Works with relative coords
                     'Path segment is not of a recognised type!! Found: ' + str(type(i))
                 )
     
-    def draw(self, sur, colour, pos, size, line_thickness=8, highlight_thickness=4, dot_thickness=12, dotColour=None, show_bps=True, highlight=None):
-        if dotColour is None:
-            dotColour = colour
+    def draw(self, sur, colour, pos, size, line_thickness=8, highlight_thickness=4, dot_thickness=12, dotColours=(None, None), show_bps=True, highlight=None):
+        if dotColours == (None, None):
+            dotColours = (colour, (255, 50, 10))
+        elif len(dotColours) != 2:
+            dotColours = (dotColours, (255, 50, 10))
         if highlight is not None:
             self._draw_once(sur, highlight, pos, size, line_thickness + 2*highlight_thickness)
         self._draw_once(sur, colour, pos, size, line_thickness)
         if show_bps:
+            j = 0
             for i in self.getBps(pos, size):
-                pygame.draw.circle(sur, dotColour, i, dot_thickness)
+                pygame.draw.circle(sur, dotColours[int(j in self.connections)], i, dot_thickness)
+                j += 1
     
     def getRect(self, pos, size, spacing=0):
         points = [(i[0] * size + pos[0], i[1] * size + pos[1]) for i in self.getCorrectedPoints()]

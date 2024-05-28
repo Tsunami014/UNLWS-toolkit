@@ -73,7 +73,7 @@ class Editor:
                 r = it[0].getRect((it[1][0] + SPACING/2, it[1][1] + SPACING/2), GLYPHSZE-SPACING, SPACING)
                 mpos = pygame.mouse.get_pos()
                 collides = r.collidepoint(mpos)
-                it[0].draw(self.screen, (10, 255, 125), (it[1][0] + SPACING/2, it[1][1] + SPACING/2), GLYPHSZE-SPACING, dotColour=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
+                it[0].draw(self.screen, (10, 255, 125), (it[1][0] + SPACING/2, it[1][1] + SPACING/2), GLYPHSZE-SPACING, dotColours=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
                 collidingBp = None
                 if collides:
                     bps = it[0].getBps((it[1][0] + SPACING/2, it[1][1] + SPACING/2), GLYPHSZE-SPACING)
@@ -90,7 +90,7 @@ class Editor:
                     else:
                         holding = (onscreens.index(it), collidingBp)
                 elif collidingBp is not None:
-                    ClosestCollBp = bps[collidingBp]
+                    ClosestCollBp = (it, collidingBp, bps[collidingBp])
             
             for li in relLines:
                 if holding is None or li != holding[1]:
@@ -102,18 +102,21 @@ class Editor:
                         nom = abs((lps[1][0]-lps[0][0])*(lps[0][1]-mpos[1])-(lps[0][0]-mpos[0])*(lps[1][1]-lps[0][1])) # Thanks to https://stackoverflow.com/questions/66424638/find-point-distance-from-line-python
                         denom = math.sqrt((lps[1][0]-lps[0][0])**2+(lps[1][1]-lps[0][1])**2)
                         collides = nom/denom < 8
-                    li.draw(self.screen, (10, 255, 125), dotColour=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
+                    li.draw(self.screen, (10, 255, 125), dotColours=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
                     collidingBp = None
                     if collides:
+                        i = 0
                         for b in li.getBps():
                             if abs(mpos[0] - b[0]) + abs(mpos[1] - b[1]) < 12:
                                 pygame.draw.circle(self.screen, (10, 125, 255), b, 15)
                                 collidingBp = b
-                                ClosestCollBp = b
+                                ClosestCollBp = (li, i, b)
                                 break
+                            i += 1
                     if collidingBp is not None and holding is not None and pygame.mouse.get_pressed()[0]:
                         if b == li.points[0]:
                             li.points.reverse()
+                            li.connections = {1-i: li.connections[i] for i in li.connections}
                             holding = (-1, li)
             
             in_bar = pygame.mouse.get_pos()[0] < sidebar_w
@@ -125,7 +128,7 @@ class Editor:
                 r = items[it].getRect((pos[0] + SPACING/2, pos[1] + SPACING/2), GLYPHSZE-SPACING, SPACING)
                 mpos = pygame.mouse.get_pos()
                 collides = r.collidepoint(mpos) and holding is None
-                items[it].draw(self.screen, (10, 255, 125), (pos[0] + SPACING/2, pos[1] + SPACING/2), GLYPHSZE-SPACING, dotColour=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
+                items[it].draw(self.screen, (10, 255, 125), (pos[0] + SPACING/2, pos[1] + SPACING/2), GLYPHSZE-SPACING, dotColours=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
                 collidingBp = None
                 if collides:
                     bps = items[it].getBps((pos[0] + SPACING/2, pos[1] + SPACING/2), GLYPHSZE-SPACING)
@@ -141,17 +144,25 @@ class Editor:
             
             if holding is not None:
                 if holding[0] == -1:
-                    holding[1].draw(self.screen, (10, 255, 125), dotColour=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
-                    pygame.draw.circle(self.screen, (10, 125, 255), holding[1].getBps()[-1], 15)
+                    if 1 in holding[0].connections:
+                        holding[0].connections[1][0].connections.pop(holding[0].connections[1][1])
+                        holding[0].connections.pop(1)
+                    holding[1].draw(self.screen, (10, 255, 125), dotColours=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
+                    pygame.draw.circle(self.screen, (10, 125, 255), holding[1].getBps()[1], 15)
                     holding[1].points[1] = pygame.mouse.get_pos()
                     if not pygame.mouse.get_pressed()[0]:
                         if ClosestCollBp is not None: # From the item check for all ones in the editor area
-                            holding[1].points[1] = ClosestCollBp
+                            holding[1].connections[1] = (ClosestCollBp[0], ClosestCollBp[1])
+                            ClosestCollBp[0].connections[ClosestCollBp[1]] = (holding[1], 1)
+                            holding[1].points[1] = ClosestCollBp[2]
                         holding = None
                 else:
                     if in_bar:
                         pygame.draw.rect(self.screen, (255, 50, 90), (0, 0, sidebar_w + 1, self.screen.get_height()))
                     it = onscreens[holding[0]]
+                    if holding[1] in it[0].connections:
+                        it[0].connections[holding[1]][0].connections.pop(it[0].connections[holding[1]][1])
+                        it[0].connections.pop(holding[1])
                     bps = it[0].getBps((SPACING/2, SPACING/2), GLYPHSZE-SPACING)
                     mpos = pygame.mouse.get_pos()
                     it[1] = (mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
@@ -162,7 +173,9 @@ class Editor:
                             onscreens.pop(holding[0])
                         else:
                             if ClosestCollBp is not None: # From the item check for all ones in the editor area
-                                it[1] = (ClosestCollBp[0] - bps[holding[1]][0], ClosestCollBp[1] - bps[holding[1]][1])
+                                it[0].connections[holding[1]] = (ClosestCollBp[0][0], ClosestCollBp[1])
+                                ClosestCollBp[0][0].connections[ClosestCollBp[1]] = (it[0], holding[1])
+                                it[1] = (ClosestCollBp[2][0] - bps[holding[1]][0], ClosestCollBp[2][1] - bps[holding[1]][1])
                         holding = None
             pygame.display.update()
             self.clock.tick(60)

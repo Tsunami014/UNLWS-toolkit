@@ -65,6 +65,7 @@ class Glyph: # Works with relative coords
         self.uid = _UIDCOUNT
         self.rotation = 0
         self.connections = {}
+        self.position = [-99, -99]
         if points is not None:
             self.points = points
         else:
@@ -76,11 +77,26 @@ class Glyph: # Works with relative coords
     def rotate(self, newRot):
         self.rotation = newRot
     
-    def _draw_once(self, sur, colour, pos, size, thickness):
+    def moveby(self, x, y, ignores=[]):
+        self.position = (self.position[0] + x, self.position[1] + y)
+        for i in self.connections:
+            if self.connections[i][0] not in ignores:
+                self.connections[i][0].moveby(x, y, ignores + [self])
+    
+    def moveto(self, x, y, ignores=[]):
+        movement = (x - self.position[0], y - self.position[1])
+        self.position = (x, y)
+        for i in self.connections:
+            if self.connections[i][0] not in ignores:
+                self.connections[i][0].moveby(movement[0], movement[1], ignores + [self])
+    
+    # TODO: ScaleBy and ScaleTo
+    
+    def _draw_once(self, sur, colour, size, thickness):
         ma, mi = self.correct()
         def correct(x, y):
             rot = _rotate(((x - mi[0]) / ma * size, (y - mi[1]) / ma * size), self.rotation)
-            return [rot[0] + pos[0], rot[1] + pos[1]]
+            return [rot[0] + self.position[0], rot[1] + self.position[1]]
         for i in self.points:
             if isinstance(i, svgPath.Move):
                 start = correct(i.start.real, i.start.imag)
@@ -107,22 +123,22 @@ class Glyph: # Works with relative coords
                     'Path segment is not of a recognised type!! Found: ' + str(type(i))
                 )
     
-    def draw(self, sur, colour, pos, size, line_thickness=8, highlight_thickness=4, dot_thickness=12, dotColours=(None, None), show_bps=True, highlight=None):
+    def draw(self, sur, colour, size, line_thickness=8, highlight_thickness=4, dot_thickness=12, dotColours=(None, None), show_bps=True, highlight=None):
         if dotColours == (None, None):
             dotColours = (colour, (255, 50, 10))
         elif len(dotColours) != 2:
             dotColours = (dotColours, (255, 50, 10))
         if highlight is not None:
-            self._draw_once(sur, highlight, pos, size, line_thickness + 2*highlight_thickness)
-        self._draw_once(sur, colour, pos, size, line_thickness)
+            self._draw_once(sur, highlight, size, line_thickness + 2*highlight_thickness)
+        self._draw_once(sur, colour, size, line_thickness)
         if show_bps:
             j = 0
-            for i in self.getBps(pos, size):
+            for i in self.getBps(self.position, size):
                 pygame.draw.circle(sur, dotColours[int(j in self.connections)], i, dot_thickness)
                 j += 1
     
-    def getRect(self, pos, size, spacing=0):
-        points = [(i[0] * size + pos[0], i[1] * size + pos[1]) for i in self.getCorrectedPoints()]
+    def getRect(self, size, spacing=0):
+        points = [(i[0] * size + self.position[0], i[1] * size + self.position[1]) for i in self.getCorrectedPoints()]
         ma, mi = _correction(points)
         return pygame.Rect(
             mi[0] - spacing/2,

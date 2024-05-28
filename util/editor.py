@@ -34,19 +34,19 @@ class Editor:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         run = False
-                    elif (not shift) and holding is not None:
+                    elif (not shift) and holding is not None and holding[0] != -1:
                         if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                            g = onscreens[holding[0]][0]
+                            g = onscreens[holding[0]]
                             g.rotate(g.rotation - 45)
                             bps = g.getBps((0, 0), GLYPHSZE)
                             mpos = pygame.mouse.get_pos()
-                            onscreens[holding[0]][1] = (mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
+                            onscreens[holding[0]].moveto(mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
                         elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                            g = onscreens[holding[0]][0]
+                            g = onscreens[holding[0]]
                             g.rotate(g.rotation + 45)
                             bps = g.getBps((0, 0), GLYPHSZE)
                             mpos = pygame.mouse.get_pos()
-                            onscreens[holding[0]][1] = (mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
+                            onscreens[holding[0]].moveto(mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
                 elif event.type == pygame.MOUSEWHEEL:
                     pos = pygame.mouse.get_pos()
                     if pos[0] < sidebar_w:
@@ -60,23 +60,23 @@ class Editor:
             ks = pygame.key.get_pressed()
             keys = [(ks[pygame.K_RIGHT] or ks[pygame.K_d]), (ks[pygame.K_LEFT] or ks[pygame.K_a])]
             if (holding is not None) and shift and any(keys):
-                g = onscreens[holding[0]][0]
+                g = onscreens[holding[0]]
                 g.rotate(g.rotation + 2 * (1 if keys[0] else -1))
                 bps = g.getBps((0, 0), GLYPHSZE)
                 mpos = pygame.mouse.get_pos()
-                onscreens[holding[0]][1] = (mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
+                onscreens[holding[0]].moveto(mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
             
             ClosestCollBp = None
             for it in onscreens:
                 if holding is not None and holding[0] == onscreens.index(it):
                     continue
-                r = it[0].getRect((it[1][0] + SPACING/2, it[1][1] + SPACING/2), GLYPHSZE-SPACING, SPACING)
+                r = it.getRect(GLYPHSZE-SPACING, SPACING)
                 mpos = pygame.mouse.get_pos()
                 collides = r.collidepoint(mpos)
-                it[0].draw(self.screen, (10, 255, 125), (it[1][0] + SPACING/2, it[1][1] + SPACING/2), GLYPHSZE-SPACING, dotColours=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
+                it.draw(self.screen, (10, 255, 125), GLYPHSZE-SPACING, dotColours=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
                 collidingBp = None
                 if collides:
-                    bps = it[0].getBps((it[1][0] + SPACING/2, it[1][1] + SPACING/2), GLYPHSZE-SPACING)
+                    bps = it.getBps(it.position, GLYPHSZE-SPACING)
                     for b in range(len(bps)):
                         if abs(mpos[0] - bps[b][0]) + abs(mpos[1] - bps[b][1]) < 12:
                             pygame.draw.circle(self.screen, (10, 125, 255), bps[b], 15)
@@ -125,13 +125,15 @@ class Editor:
             
             for it in range(len(items)):
                 pos = (20, it*120+sidebarScroll+20)
-                r = items[it].getRect((pos[0] + SPACING/2, pos[1] + SPACING/2), GLYPHSZE-SPACING, SPACING)
+                items[it].connections = {}
+                items[it].moveto(pos[0] + SPACING/2, pos[1] + SPACING/2)
+                r = items[it].getRect(GLYPHSZE-SPACING, SPACING)
                 mpos = pygame.mouse.get_pos()
                 collides = r.collidepoint(mpos) and holding is None
-                items[it].draw(self.screen, (10, 255, 125), (pos[0] + SPACING/2, pos[1] + SPACING/2), GLYPHSZE-SPACING, dotColours=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
+                items[it].draw(self.screen, (10, 255, 125), GLYPHSZE-SPACING, dotColours=(90, 255, 200), show_bps=collides, highlight=((255,228,181) if collides else None))
                 collidingBp = None
                 if collides:
-                    bps = items[it].getBps((pos[0] + SPACING/2, pos[1] + SPACING/2), GLYPHSZE-SPACING)
+                    bps = items[it].getBps(items[it].position, GLYPHSZE-SPACING)
                     for b in range(len(bps)):
                         if abs(mpos[0] - bps[b][0]) + abs(mpos[1] - bps[b][1]) < 12:
                             pygame.draw.circle(self.screen, (10, 125, 255), bps[b], 15)
@@ -139,7 +141,9 @@ class Editor:
                             break
                 if collidingBp is not None and pygame.mouse.get_pressed()[0]:
                     bps = items[it].getBps((0, 0), GLYPHSZE)
-                    onscreens.append([items[it].copy(), (mpos[0] - bps[collidingBp][0], mpos[1] - bps[collidingBp][1])])
+                    newg = items[it].copy()
+                    newg.moveto(mpos[0] - bps[collidingBp][0], mpos[1] - bps[collidingBp][1])
+                    onscreens.append(newg)
                     holding = (len(onscreens)-1, collidingBp)
             
             if holding is not None:
@@ -160,22 +164,22 @@ class Editor:
                     if in_bar:
                         pygame.draw.rect(self.screen, (255, 50, 90), (0, 0, sidebar_w + 1, self.screen.get_height()))
                     it = onscreens[holding[0]]
-                    if holding[1] in it[0].connections:
-                        it[0].connections[holding[1]][0].connections.pop(it[0].connections[holding[1]][1])
-                        it[0].connections.pop(holding[1])
-                    bps = it[0].getBps((SPACING/2, SPACING/2), GLYPHSZE-SPACING)
+                    if holding[1] in it.connections:
+                        it.connections[holding[1]][0].connections.pop(it.connections[holding[1]][1])
+                        it.connections.pop(holding[1])
+                    bps = it.getBps((SPACING/2, SPACING/2), GLYPHSZE-SPACING)
                     mpos = pygame.mouse.get_pos()
-                    it[1] = (mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
-                    it[0].draw(self.screen, (10, 255, 125), (it[1][0] + SPACING/2, it[1][1] + SPACING/2), GLYPHSZE-SPACING, show_bps=False, highlight=(255,228,181))
-                    pygame.draw.circle(self.screen, (10, 255, 125), (it[1][0] + bps[holding[1]][0], it[1][1] + bps[holding[1]][1]), 15)
+                    it.moveto(mpos[0] - bps[holding[1]][0], mpos[1] - bps[holding[1]][1])
+                    it.draw(self.screen, (10, 255, 125), GLYPHSZE-SPACING, show_bps=False, highlight=(255,228,181))
+                    pygame.draw.circle(self.screen, (10, 255, 125), (it.position[0] + bps[holding[1]][0], it.position[1] + bps[holding[1]][1]), 15)
                     if not pygame.mouse.get_pressed()[0]:
                         if in_bar:
                             onscreens.pop(holding[0])
                         else:
                             if ClosestCollBp is not None: # From the item check for all ones in the editor area
-                                it[0].connections[holding[1]] = (ClosestCollBp[0][0], ClosestCollBp[1])
-                                ClosestCollBp[0][0].connections[ClosestCollBp[1]] = (it[0], holding[1])
-                                it[1] = (ClosestCollBp[2][0] - bps[holding[1]][0], ClosestCollBp[2][1] - bps[holding[1]][1])
+                                it.connections[holding[1]] = (ClosestCollBp[0], ClosestCollBp[1])
+                                ClosestCollBp[0].connections[ClosestCollBp[1]] = (it, holding[1])
+                                it.moveto(ClosestCollBp[2][0] - bps[holding[1]][0], ClosestCollBp[2][1] - bps[holding[1]][1])
                         holding = None
             pygame.display.update()
             self.clock.tick(60)

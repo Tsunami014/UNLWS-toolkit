@@ -23,16 +23,51 @@ def _rotate(point, angle): # Thanks, https://stackoverflow.com/questions/3437248
     qy = sin * px + cos * py
     return qx, qy
 
-class RelLine: # Works with absolute coords
-    def __init__(self, points: list[int,int]):
+class Base:
+    def __init__(self, points: list[int,int]) -> None:
         global _UIDCOUNT
-        self.points = points
         _UIDCOUNT += 1
         self.uid = _UIDCOUNT
+        self.points = points
+        self.position = (None, None)
+        self.connections = {}
     
-    def draw(self, sur, colour, line_thickness=8, highlight_thickness=4, dot_thickness=12, dotColour=None, show_bps=True, highlight=None):
-        if dotColour is None:
-            dotColour = colour
+    def moveby(self, x, y, ignores=[]):
+        if self.position == (None, None):
+            self.position = (x, y)
+            return
+        self.position = (self.position[0] + x, self.position[1] + y)
+        for i in self.connections:
+            if self.connections[i][0] not in ignores:
+                self.connections[i][0].moveby(x, y, ignores + [self])
+    
+    def moveto(self, x, y, ignores=[]):
+        if self.position == (None, None):
+            self.position = (x, y)
+            return
+        movement = (x - self.position[0], y - self.position[1])
+        self.position = (x, y)
+        for i in self.connections:
+            if self.connections[i][0] not in ignores:
+                self.connections[i][0].moveby(movement[0], movement[1], ignores + [self])
+    
+    # TODO: ScaleBy and ScaleTo
+    
+    def __str__(self) -> str:
+        return f"<{str(self.__class__)} object with points ({','.join(self.points)}){'' if self.position == (None, None) else 'at position (%s)'%', '.join([str(i) for i in self.points])}>"
+    def __hash__(self) -> int:
+        return hash([self.uid, self.points])
+    def __repr__(self) -> str: return str(self)
+    
+    def copy(self):
+        return RelLine(self.points)
+
+class RelLine(Base): # Works with absolute coords
+    def draw(self, sur, colour, line_thickness=8, highlight_thickness=4, dot_thickness=12, dotColours=(None, None), show_bps=True, highlight=None):
+        if dotColours == (None, None):
+            dotColours = (colour, (255, 50, 10))
+        elif len(dotColours) != 2:
+            dotColours = (dotColours, (255, 50, 10))
         if highlight is not None:
             pygame.draw.lines(sur, highlight, False, self.points, line_thickness + 2*highlight_thickness)
             for i in self.points:
@@ -41,56 +76,30 @@ class RelLine: # Works with absolute coords
         for i in self.points:
                 pygame.draw.circle(sur, colour, i, line_thickness/2)
         if show_bps:
+            j = 0
             for i in self.points:
-                pygame.draw.circle(sur, dotColour, i, dot_thickness)
+                pygame.draw.circle(sur, dotColours[int(j in self.connections)], i, dot_thickness)
+                j += 1
     
     def getBps(self):
         return self.points
-    
-    def __hash__(self) -> int:
-        return hash([self.uid, self.points])
-    def __str__(self) -> str:
-        return f'<Rel Line object with points ({",".join(self.points)})>'
-    def __repr__(self) -> str: return str(self)
-    
-    def copy(self):
-        return RelLine(self.points)
 
-class Glyph: # Works with relative coords
+class Glyph(Base): # Works with relative coords
     def __init__(self, name: str, points = None) -> None:
-        global _UIDCOUNT
-        self.name = name
-        self.data = DAT[name]
-        _UIDCOUNT += 1
-        self.uid = _UIDCOUNT
-        self.rotation = 0
-        self.connections = {}
-        self.position = [-99, -99]
         if points is not None:
-            self.points = points
+            super().__init__(points)
         else:
             try:
                 self.points = _getGlyph(name)
             except KeyError:
                 raise KeyError('No glyph named "%s" exists in `glyphs.svg`!' % name)
+        self.name = name
+        self.data = DAT[name]
+        self.rotation = 0
+        self.connections = {}
     
     def rotate(self, newRot):
         self.rotation = newRot
-    
-    def moveby(self, x, y, ignores=[]):
-        self.position = (self.position[0] + x, self.position[1] + y)
-        for i in self.connections:
-            if self.connections[i][0] not in ignores:
-                self.connections[i][0].moveby(x, y, ignores + [self])
-    
-    def moveto(self, x, y, ignores=[]):
-        movement = (x - self.position[0], y - self.position[1])
-        self.position = (x, y)
-        for i in self.connections:
-            if self.connections[i][0] not in ignores:
-                self.connections[i][0].moveby(movement[0], movement[1], ignores + [self])
-    
-    # TODO: ScaleBy and ScaleTo
     
     def _draw_once(self, sur, colour, size, thickness):
         ma, mi = self.correct()

@@ -23,6 +23,12 @@
             "program": "__main__.py",
             "console": "integratedTerminal",
             "justMyCode": false,
+        },
+        {
+            "name": "Launch web server",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "http-server"
         }
     ]
 }

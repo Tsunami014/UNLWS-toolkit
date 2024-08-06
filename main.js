@@ -43,5 +43,5 @@ document.body.onload = function() {
         cover.style = "display: none;";
         reload = true;
         current = null;
-    });
+    })
 }

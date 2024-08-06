@@ -4,6 +4,18 @@ var offset = [0,0];
 var reload = true;
 var current = null;
 var cover;
+var bincover;
+var sidebarh = 10;
+
+function reset() {
+    if (parseInt(current.style.left.slice(0,current.style.left.indexOf("px"))) < document.getElementById("sidebar").getBoundingClientRect().right) {
+        current.parentElement.removeChild(current);
+    }
+    cover.style = "display: none;";
+    bincover.style = "display: none;";
+    reload = true;
+    current = null;
+}
 
 function addGlyph(glyph, position=[0,0]) {
     var it = document.createElement("img");
@@ -30,18 +42,19 @@ function addGlyph(glyph, position=[0,0]) {
                     reload = false;
                 }
                 it.style = `top: ${y-offset[1]};left: ${x-offset[0]}`
+                if (x-offset[0] < document.getElementById("sidebar").getBoundingClientRect().right) {
+                    bincover.style = "display: block;";
+                } else {
+                    bincover.style = "display: none;";
+                }
             }
         }
     });
     it.addEventListener("mouseup", function(event){
-        cover.style = "display: none;";
-        reload = true;
-        current = null;
+        reset();
     })
     return it;
 }
-
-var sidebarh = 10;
 
 function addGlyphToSidebar(glyph) {
     var sidebar = document.getElementById("sidebar");
@@ -77,17 +90,20 @@ function addGlyphToSidebar(glyph) {
 
 document.body.onload = function() {
     cover = document.getElementById("cover");
+    bincover = document.getElementById("bincover")
     cover.style = "display: none;";
-    cover.addEventListener("mouseup", function(event){
-        cover.style = "display: none;";
-        reload = true;
-        current = null;
-    })
+    bincover.style = "display: none;";
+    cover.addEventListener("mouseup", function(event){reset();});
     cover.addEventListener("mousemove", function(event){
         if (current !== null) {
             const x = event.clientX;
             const y = event.clientY;
             current.style = `top: ${y-offset[1]};left: ${x-offset[0]}`
+            if (x-offset[0] < document.getElementById("sidebar").getBoundingClientRect().right) {
+                bincover.style = "display: block;";
+            } else {
+                bincover.style = "display: none;";
+            }
         }
     })
     fetch('glyphs/').then(resp=>{resp.text().then(txt=>{

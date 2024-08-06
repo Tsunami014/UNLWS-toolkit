@@ -47,3 +47,52 @@ body {
     background-color: rgba(236, 25, 25);
     border-radius: 8px;
 }
+
+.button {
+    font: bold 20px Arial;
+    text-decoration: none;
+    background-color: #EEEEEE;
+    color: #333333;
+    padding: 2px 6px 2px 6px;
+    border-top: 1px solid #CCCCCC;
+    border-right: 1px solid #333333;
+    border-bottom: 1px solid #333333;
+    border-left: 1px solid #CCCCCC;
+    border-radius: 3px;
+}
+
+#info-selector {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+#close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #fe0606;
+    font-size: 30px;
+    text-decoration: none;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(213, 126, 254, 0.7);
+    z-index: 3;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.content {
+    position: relative;
+    background: white;
+    padding: 1em 2em;
+    border-radius: 4px;
+}
+
+.modal:target {
+    display: flex;
+}

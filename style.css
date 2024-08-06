@@ -6,6 +6,13 @@ body {
 
 .glyph {
     position: absolute;
+    border-radius: 8px;
+    padding: 5px;
+    border: 8px groove rgba(0,0,0,0);
+}
+
+.selected {
+    border-color: lightblue;
 }
 
 #cover {
@@ -17,11 +24,19 @@ body {
 
 #sidebar {
     height: calc(100vh - 16px);
-    width: 120px;
+    width: 136px;
     position: fixed;
     background-color: rgb(124, 137, 143);
     overflow-y: scroll;
     border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.sidebarGlyph {
+    position: relative;
 }
 
 #bincover {

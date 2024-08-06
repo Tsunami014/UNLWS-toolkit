@@ -5,16 +5,18 @@ var reload = true;
 var current = null;
 var cover;
 var bincover;
-var sidebarh = 10;
+var selected = null;
 
 function reset() {
-    if (parseInt(current.style.left.slice(0,current.style.left.indexOf("px"))) < document.getElementById("sidebar").getBoundingClientRect().right) {
-        current.parentElement.removeChild(current);
+    if (current !== null) {
+        if (parseInt(current.style.left.slice(0,current.style.left.indexOf("px"))) < document.getElementById("sidebar").getBoundingClientRect().right) {
+            current.parentElement.removeChild(current);
+        }
+        current = null;
     }
     cover.style = "display: none;";
     bincover.style = "display: none;";
     reload = true;
-    current = null;
 }
 
 function addGlyph(glyph, position=[0,0]) {
@@ -26,6 +28,13 @@ function addGlyph(glyph, position=[0,0]) {
     it.style.left = position[0];
     it.style.top = position[1];
     it.ondragstart = function() { return false; };
+    it.addEventListener("dblclick", function (event) {
+        if (selected !== null) {
+            selected.classList.remove('selected');
+        }
+        selected = it;
+        it.classList.add('selected');
+    }); 
     it.addEventListener('mousemove', function(event) {
         const x = event.clientX;
         const y = event.clientY;
@@ -60,12 +69,11 @@ function addGlyphToSidebar(glyph) {
     var sidebar = document.getElementById("sidebar");
     // Make a new glyph and centre it on the sidebar
     var it = document.createElement("img");
-    it.classList.add("glyph");
+    it.classList.add("sidebarGlyph");
+    it.classList.add("glyph")
     it.src = `glyphs/${glyph}.svg`;
     it.width = 100;
     it.height = 100;
-    it.style.left = (sidebar.clientWidth - 100) / 2;
-    it.style.top = sidebarh;
     it.ondragstart = function() { return false; };
     it.addEventListener('mousemove', function(event) {
         const x = event.clientX;
@@ -84,7 +92,6 @@ function addGlyphToSidebar(glyph) {
         }
     });
     sidebar.appendChild(it);
-    sidebarh += 110;
     return it;
 }
 
@@ -93,6 +100,12 @@ document.body.onload = function() {
     bincover = document.getElementById("bincover")
     cover.style = "display: none;";
     bincover.style = "display: none;";
+    document.addEventListener("mousedown", function(event) {
+        if (selected !== null) {
+            selected.classList.remove('selected');
+        }
+        selected = null;
+    })
     cover.addEventListener("mouseup", function(event){reset();});
     cover.addEventListener("mousemove", function(event){
         if (current !== null) {

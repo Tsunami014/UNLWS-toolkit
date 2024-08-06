@@ -3,7 +3,6 @@
 var offset = [0,0];
 var reload = true;
 var current = null;
-var cover;
 var bincover;
 var selected = null;
 
@@ -14,7 +13,6 @@ function reset() {
         }
         current = null;
     }
-    cover.style = "display: none;";
     bincover.style = "display: none;";
     reload = true;
 }
@@ -42,7 +40,6 @@ function addGlyph(glyph, position=[0,0]) {
         if ((flags & 1) === 1) {
             if (current === null) {
                 current = it;
-                cover.style = "display: block;";
             }
             if (current === it) {
                 if (reload) {
@@ -87,7 +84,6 @@ function addGlyphToSidebar(glyph) {
                 reload = false;
                 current = newit;
                 document.getElementById("main").appendChild(newit);
-                cover.style = "display: block;";
             }
         }
     });
@@ -96,9 +92,7 @@ function addGlyphToSidebar(glyph) {
 }
 
 document.body.onload = function() {
-    cover = document.getElementById("cover");
     bincover = document.getElementById("bincover")
-    cover.style = "display: none;";
     bincover.style = "display: none;";
     document.addEventListener("mousedown", function(event) {
         if (selected !== null) {
@@ -106,8 +100,8 @@ document.body.onload = function() {
         }
         selected = null;
     })
-    cover.addEventListener("mouseup", function(event){reset();});
-    cover.addEventListener("mousemove", function(event){
+    document.addEventListener("mouseup", function(event){reset();});
+    document.addEventListener("mousemove", function(event){
         if (current !== null) {
             const x = event.clientX;
             const y = event.clientY;

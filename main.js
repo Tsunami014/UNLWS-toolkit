@@ -15,6 +15,10 @@ function reset() {
     reload = true;
 }
 
+function rotate(elm, deg) {
+    elm.style.transform = `rotate(${deg}deg)`;
+}
+
 function addGlyph(glyph, position=[0,0]) {
     var it = document.createElement("img");
     it.classList.add("glyph");
@@ -45,7 +49,9 @@ function addGlyph(glyph, position=[0,0]) {
                     offset = [x - it.offsetLeft, y - it.offsetTop];
                     reload = false;
                 }
-                it.style = `top: ${y-offset[1]};left: ${x-offset[0]}`
+                current.style.top = `${y-offset[1]}px`;
+                current.style.left = `${x-offset[0]}px`;
+                //it.style = `top: ${y-offset[1]};left: ${x-offset[0]}`
                 if (x-offset[0] < document.getElementById("sidebar").getBoundingClientRect().right) {
                     bincover.style = "display: block;";
                 } else {
@@ -103,11 +109,25 @@ document.body.onload = function() {
         if (current !== null) {
             const x = event.clientX;
             const y = event.clientY;
-            current.style = `top: ${y-offset[1]};left: ${x-offset[0]}`
+            current.style.top = `${y-offset[1]}px`;
+            current.style.left = `${x-offset[0]}px`;
+            //current.style = `top: ${y-offset[1]};left: ${x-offset[0]}`
             if (x-offset[0] < document.getElementById("sidebar").getBoundingClientRect().right) {
                 bincover.style = "display: block;";
             } else {
                 bincover.style = "display: none;";
+            }
+        }
+    })
+    document.addEventListener("keydown", function(event){
+        if (selected !== null) {
+            if (event.key === 'ArrowRight' || event.key === 'd') {
+                rotate(selected, (parseInt(selected.style.transform.slice(7, -4))||0)+15);
+            } else if (event.key === 'ArrowLeft' || event.key === 'a') {
+                rotate(selected, (parseInt(selected.style.transform.slice(7, -4))||0)-15);
+            } else if (event.key === 'Delete' || event.key === 'Backspace') {
+                selected.parentElement.removeChild(selected);
+                selected = null;
             }
         }
     })

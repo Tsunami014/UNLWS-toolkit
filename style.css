@@ -1,7 +1,7 @@
 body {
     width: 100vw;
     height: 100vh;
-    overflow: hidden;
+    overflow: scroll;
 }
 
 .glyph {
@@ -62,9 +62,9 @@ body {
 }
 
 #info-selector {
-    position: absolute;
-    right: 0;
-    bottom: 0;
+    position: fixed;
+    right: 5;
+    bottom: 5;
 }
 
 #close {

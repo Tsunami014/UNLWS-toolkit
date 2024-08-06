@@ -5,7 +5,7 @@ body {
 }
 
 .glyph {
-    position: absolute;
+    position: fixed;
     border-radius: 8px;
     padding: 5px;
     border: 8px groove rgba(0,0,0,0);

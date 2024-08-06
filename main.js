@@ -4,7 +4,7 @@ var current = null;
 var bincover;
 var selected = null;
 
-function reset() {
+function glyphMouseUp() {
     if (current !== null) {
         if (parseInt(current.style.left.slice(0,current.style.left.indexOf("px"))) < document.getElementById("sidebar").getBoundingClientRect().right) {
             current.parentElement.removeChild(current);
@@ -13,6 +13,29 @@ function reset() {
     }
     bincover.style = "display: none;";
     reload = true;
+}
+
+function glyphMouseMove(event) {
+    if (current !== null) {
+        const x = event.clientX;
+        const y = event.clientY;
+        var flags = event.buttons !== undefined ? event.buttons : event.which;
+        if ((flags & 1) === 1) {
+            if (reload) {
+                // Set offset to mouse position - current position of object, if set
+                offset = [x - current.offsetLeft, y - current.offsetTop];
+                reload = false;
+            }
+            current.style.top = `${y-offset[1]}px`;
+            current.style.left = `${x-offset[0]}px`;
+            //current.style = `top: ${y-offset[1]};left: ${x-offset[0]}`
+            if (x-offset[0] < document.getElementById("sidebar").getBoundingClientRect().right) {
+                bincover.style = "display: block;";
+            } else {
+                bincover.style = "display: none;";
+            }
+        }
+    }
 }
 
 function rotate(elm, deg) {
@@ -36,33 +59,15 @@ function addGlyph(glyph, position=[0,0]) {
         it.classList.add('selected');
     }); 
     it.addEventListener('mousemove', function(event) {
-        const x = event.clientX;
-        const y = event.clientY;
         var flags = event.buttons !== undefined ? event.buttons : event.which;
         if ((flags & 1) === 1) {
             if (current === null) {
                 current = it;
             }
-            if (current === it) {
-                if (reload) {
-                    // Set offset to mouse position - current position of object, if set
-                    offset = [x - it.offsetLeft, y - it.offsetTop];
-                    reload = false;
-                }
-                current.style.top = `${y-offset[1]}px`;
-                current.style.left = `${x-offset[0]}px`;
-                //it.style = `top: ${y-offset[1]};left: ${x-offset[0]}`
-                if (x-offset[0] < document.getElementById("sidebar").getBoundingClientRect().right) {
-                    bincover.style = "display: block;";
-                } else {
-                    bincover.style = "display: none;";
-                }
-            }
+            glyphMouseMove(event);
         }
     });
-    it.addEventListener("mouseup", function(event){
-        reset();
-    })
+    it.addEventListener("mouseup", function(event){ glyphMouseUp(); })
     return it;
 }
 
@@ -104,21 +109,8 @@ document.body.onload = function() {
         }
         selected = null;
     })
-    document.addEventListener("mouseup", function(event){reset();});
-    document.addEventListener("mousemove", function(event){
-        if (current !== null) {
-            const x = event.clientX;
-            const y = event.clientY;
-            current.style.top = `${y-offset[1]}px`;
-            current.style.left = `${x-offset[0]}px`;
-            //current.style = `top: ${y-offset[1]};left: ${x-offset[0]}`
-            if (x-offset[0] < document.getElementById("sidebar").getBoundingClientRect().right) {
-                bincover.style = "display: block;";
-            } else {
-                bincover.style = "display: none;";
-            }
-        }
-    })
+    document.addEventListener("mouseup", function(event){ glyphMouseUp(); });
+    document.addEventListener("mousemove", function(event){ glyphMouseMove(event); })
     document.addEventListener("keydown", function(event){
         if (selected !== null) {
             if (event.key === 'ArrowRight' || event.key === 'd') {

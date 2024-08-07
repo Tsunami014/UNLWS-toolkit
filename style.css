@@ -1,7 +1,7 @@
 body {
     width: 100vw;
     height: 100vh;
-    overflow: scroll;
+    margin: 0;
 }
 
 .glyph {
@@ -23,7 +23,9 @@ body {
 }
 
 #sidebar {
-    height: calc(100vh - 16px);
+    left: 5px;
+    top: 5px;
+    height: calc(100vh - 10px);
     width: 136px;
     position: fixed;
     background-color: rgb(124, 137, 143);
@@ -31,7 +33,7 @@ body {
     border-radius: 8px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    /*justify-content: center;*/
     flex-direction: column;
 }
 

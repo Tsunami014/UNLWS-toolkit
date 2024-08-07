@@ -4,6 +4,19 @@ var current = null;
 var bincover;
 var selected = null;
 
+var menu = {
+    "File": {
+        "Save": function(){alert("You saved something!")},
+        "Save As": function(){alert("You saved something as something else!")},
+        "Open": function(){alert("You opened something!")}
+    },
+    "Edit": {
+        "Cut": function(){alert("You cut something!")},
+        "Copy": function(){alert("You copied something!")},
+        "Paste": function(){alert("You pasted something!")}
+    }
+}
+
 function glyphMouseUp() {
     if (current !== null) {
         if (parseInt(current.style.left.slice(0,current.style.left.indexOf("px"))) < document.getElementById("sidebar").getBoundingClientRect().right) {
@@ -123,6 +136,34 @@ document.body.onload = function() {
             }
         }
     })
+    document.addEventListener("contextmenu",function(event){
+        if (window.location.hash === "") {
+            event.preventDefault();
+            var ctxMenu = document.getElementById("ctxMenu");
+            ctxMenu.innerHTML = "";
+            for (let menulist in menu) {
+                var newMenu = document.createElement("menu");
+                newMenu.title = menulist;
+                for (let menuitem in menu[menulist]) {
+                var menuchild = document.createElement("menu");
+                menuchild.title = menuitem;
+                menuchild.onclick = menu[menulist][menuitem];
+                newMenu.appendChild(menuchild);
+                }
+                ctxMenu.appendChild(newMenu);
+            }
+            ctxMenu.style.display = "block";
+            ctxMenu.style.left = (event.pageX - 10)+"px";
+            ctxMenu.style.top = (event.pageY - 10)+"px";
+        }
+    }, false);
+    document.addEventListener("click",function(event){
+        var ctxMenu = document.getElementById("ctxMenu");
+        ctxMenu.style.display = "";
+        ctxMenu.style.left = "";
+        ctxMenu.style.top = "";
+    }, false);
+
     fetch('glyphs/').then(resp=>{resp.text().then(txt=>{
         var el = document.createElement('html');
         el.innerHTML = txt;

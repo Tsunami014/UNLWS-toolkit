@@ -1,0 +1,6 @@
+{
+    "NAME": {
+        "filename": "The name of the file. Defaults to '{NAME}.svg'",
+        "description": "The description of the glyph which will be displayed in a tooltip above it. Defaults to ''"
+    }
+}

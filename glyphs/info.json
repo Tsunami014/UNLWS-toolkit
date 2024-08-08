@@ -1,0 +1,11 @@
+{
+    "eat": {
+        "description": "X eats Y"
+    },
+    "you": {
+        "description": "X be thou"
+    },
+    "me": {
+        "description": "X be me"
+    }
+}

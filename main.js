@@ -3,6 +3,7 @@ var reload = true;
 var current = null;
 var bincover;
 var selected = null;
+var glyphs;
 
 var menu = {
     "File": {
@@ -55,20 +56,23 @@ function rotate(elm, deg) {
     elm.style.transform = `rotate(${deg}deg)`;
 }
 
-function addGlyph(glyph, position=[0,0]) {
+function addGlyph(g, position=[0,0]) {
     var it = document.createElement("div");
     it.classList.add("glyph");
     it.style.left = position[0];
     it.style.top = position[1];
     var img = document.createElement("img");
     it.appendChild(img);
-    img.src = `glyphs/${glyph}.svg`;
+    img.src = "glyphs/"+(glyphs[g].filename || (g + ".svg"));
     img.width = 100;
     img.height = 100;
-    var tooltip = document.createElement("span");
-    it.appendChild(tooltip);
-    tooltip.classList.add("tooltiptext");
-    tooltip.innerText = "Tooltip text for some cool glyph!";
+    if (glyphs[g].description !== null) {
+        var tooltip = document.createElement("span");
+        it.appendChild(tooltip);
+        tooltip.classList.add("tooltiptext");
+        tooltip.classList.add("unselectable");
+        tooltip.innerText = glyphs[g].description;
+    }
     img.ondragstart = function() { return false; };
     it.addEventListener("dblclick", function (event) {
         if (selected !== null) {
@@ -90,7 +94,7 @@ function addGlyph(glyph, position=[0,0]) {
     return it;
 }
 
-function addGlyphToSidebar(glyph) {
+function addGlyphToSidebar(g) {
     var sidebar = document.getElementById("sidebar");
     // Make a new glyph and centre it on the sidebar
     var it = document.createElement("div");
@@ -98,13 +102,16 @@ function addGlyphToSidebar(glyph) {
     it.classList.add("glyph")
     var img = document.createElement("img");
     it.appendChild(img)
-    img.src = `glyphs/${glyph}.svg`;
+    img.src = "glyphs/"+(glyphs[g].filename || (g + ".svg"));
     img.width = 100;
     img.height = 100;
-    var tooltip = document.createElement("span");
-    it.appendChild(tooltip);
-    tooltip.classList.add("tooltiptext");
-    tooltip.innerText = "Tooltip text";
+    if (glyphs[g].description !== null) {
+        var tooltip = document.createElement("span");
+        it.appendChild(tooltip);
+        tooltip.classList.add("tooltiptext");
+        tooltip.classList.add("unselectable");
+        tooltip.innerText = glyphs[g].description;
+    }
     img.ondragstart = function() { return false; };
     it.addEventListener('mousemove', function(event) {
         const x = event.clientX;
@@ -113,7 +120,7 @@ function addGlyphToSidebar(glyph) {
         if ((flags & 1) === 1) {
             if (current === null) {
                 var bbox = it.getBoundingClientRect();
-                var newit = addGlyph(glyph, [bbox.left, bbox.top]);
+                var newit = addGlyph(g, [bbox.left, bbox.top]);
                 offset = [x - bbox.left, y - bbox.top];
                 reload = false;
                 current = newit;
@@ -125,7 +132,9 @@ function addGlyphToSidebar(glyph) {
     return it;
 }
 
-document.body.onload = function() {
+document.body.onload = async function() {
+    var resp = await fetch('glyphs/info.json')
+    glyphs = await resp.json()
     bincover = document.getElementById("bincover")
     bincover.style = "display: none;";
     document.addEventListener("mousedown", function(event) {
@@ -176,15 +185,7 @@ document.body.onload = function() {
         ctxMenu.style.top = "";
     }, false);
 
-    fetch('glyphs/').then(resp=>{resp.text().then(txt=>{
-        var el = document.createElement('html');
-        el.innerHTML = txt;
-        var files = el.getElementsByTagName('a');
-        for (var i = 0;i < files.length;i++) {
-            var href = files[i].href;
-            if (href.endsWith('.svg')) {
-                addGlyphToSidebar(href.slice(href.lastIndexOf("/")+1, href.lastIndexOf(".")));
-            }
-        }
-    })});
+    for (var g in glyphs) {
+        addGlyphToSidebar(g);
+    }
 }

@@ -110,6 +110,7 @@ function addGlyphToSidebar(g) {
         it.appendChild(tooltip);
         tooltip.classList.add("tooltiptext");
         tooltip.classList.add("unselectable");
+        tooltip.classList.add("alwaysOn");
         tooltip.innerText = glyphs[g].description;
     }
     img.ondragstart = function() { return false; };

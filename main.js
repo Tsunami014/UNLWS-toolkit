@@ -56,14 +56,20 @@ function rotate(elm, deg) {
 }
 
 function addGlyph(glyph, position=[0,0]) {
-    var it = document.createElement("img");
+    var it = document.createElement("div");
     it.classList.add("glyph");
-    it.src = `glyphs/${glyph}.svg`;
-    it.width = 100;
-    it.height = 100;
     it.style.left = position[0];
     it.style.top = position[1];
-    it.ondragstart = function() { return false; };
+    var img = document.createElement("img");
+    it.appendChild(img);
+    img.src = `glyphs/${glyph}.svg`;
+    img.width = 100;
+    img.height = 100;
+    var tooltip = document.createElement("span");
+    it.appendChild(tooltip);
+    tooltip.classList.add("tooltiptext");
+    tooltip.innerText = "Tooltip text for some cool glyph!";
+    img.ondragstart = function() { return false; };
     it.addEventListener("dblclick", function (event) {
         if (selected !== null) {
             selected.classList.remove('selected');
@@ -87,13 +93,19 @@ function addGlyph(glyph, position=[0,0]) {
 function addGlyphToSidebar(glyph) {
     var sidebar = document.getElementById("sidebar");
     // Make a new glyph and centre it on the sidebar
-    var it = document.createElement("img");
+    var it = document.createElement("div");
     it.classList.add("sidebarGlyph");
     it.classList.add("glyph")
-    it.src = `glyphs/${glyph}.svg`;
-    it.width = 100;
-    it.height = 100;
-    it.ondragstart = function() { return false; };
+    var img = document.createElement("img");
+    it.appendChild(img)
+    img.src = `glyphs/${glyph}.svg`;
+    img.width = 100;
+    img.height = 100;
+    var tooltip = document.createElement("span");
+    it.appendChild(tooltip);
+    tooltip.classList.add("tooltiptext");
+    tooltip.innerText = "Tooltip text";
+    img.ondragstart = function() { return false; };
     it.addEventListener('mousemove', function(event) {
         const x = event.clientX;
         const y = event.clientY;
@@ -127,9 +139,9 @@ document.body.onload = function() {
     document.addEventListener("keydown", function(event){
         if (selected !== null) {
             if (event.key === 'ArrowRight' || event.key === 'd') {
-                rotate(selected, (parseInt(selected.style.transform.slice(7, -4))||0)+15);
+                rotate(selected.children[0], (parseInt(selected.children[0].style.transform.slice(7, -4))||0)+15);
             } else if (event.key === 'ArrowLeft' || event.key === 'a') {
-                rotate(selected, (parseInt(selected.style.transform.slice(7, -4))||0)-15);
+                rotate(selected.children[0], (parseInt(selected.children[0].style.transform.slice(7, -4))||0)-15);
             } else if (event.key === 'Delete' || event.key === 'Backspace') {
                 selected.parentElement.removeChild(selected);
                 selected = null;
